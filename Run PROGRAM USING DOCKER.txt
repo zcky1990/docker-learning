@@ -1,0 +1,72 @@
+DOCKERFILE Explanation :
+    =====================================================================================
+        # syntax=docker/dockerfile:1
+        FROM ruby:3.0.0
+        RUN apt-get update -qq && apt-get install -y build-essential libpq-dev nodejs
+
+        WORKDIR /dokerize-rails
+        COPY Gemfile /dokerize-rails/Gemfile
+        COPY Gemfile.lock /dokerize-rails/Gemfile.lock
+        COPY . /dokerize-rails
+        RUN bundle install
+
+        # Add a script to be executed every time the container starts.
+        COPY entrypoint.sh /usr/bin/
+        RUN chmod +x /usr/bin/entrypoint.sh
+        ENTRYPOINT ["entrypoint.sh"]
+        EXPOSE 3000
+
+        # Configure the main process to run when running the image
+        CMD ["rails", "server", "-b", "0.0.0.0"]
+    =====================================================================================
+    FROM ruby:3.0.0 
+        instruction to define the parent image. We are using the pre-built official image of Ruby from Docker Hub.
+        jadi kita ambil image ruby:3.0.0 dari docker hub
+    
+    RUN apt-get update -qq && apt-get install -y build-essential libpq-dev nodejs
+        installing all the dependencies
+
+    WORKDIR
+        instruction will set the working directory
+
+    COPY
+        copy file from current directory
+        - COPY Gemfile /dokerize-rails/Gemfile
+            copy gemfile dari current folder ke dalem work directory
+        - COPY Gemfile.lock /dokerize-rails/Gemfile.lock
+            copy gemlock dari current folder ke dalem work directory
+        - COPY . /dokerize-rails
+            copy current folder ke dalem work directory
+
+    RUN bundle install
+        running to install all rails gem inside docker image
+
+    # Add a script to be executed every time the container starts.
+    COPY entrypoint.sh /usr/bin/
+    RUN chmod +x /usr/bin/entrypoint.sh
+    ENTRYPOINT ["entrypoint.sh"]
+        add this because we follow docker guide from docker documentation
+        https://docs.docker.com/samples/rails/
+    
+    EXPOSE 3000
+        we are exposing port 3000 for our docker container using the EXPOSE instruction so we can hit from our browser
+    
+    CMD ["rails", "server", "-b", "0.0.0.0"]
+        we follow rails docker guide https://docs.docker.com/samples/rails/
+
+
+BUILD DOCKER using DOCKER compose
+    docker-compose build
+
+RUN APP
+    docker-compose up
+
+
+USE rails function inside docker :
+    docker-compose run <name of app inside docker-compose we use app in this example > <rails something>
+    ex: 
+        - docker-compose run app rails c
+        - docker-compose run app rails generate rspec:install
+
+RSPEC :
+    docker-compose run app  rspec --format documentation
