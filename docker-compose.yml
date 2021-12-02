@@ -1,22 +1,53 @@
-version: '2'
+version: '3'
 services:
-  db:
+  mongo:
     image: mongo:4.4.3
     restart: always
     # environment:
-    #   # mongodb client connection
+    #   RAILS_ENV: "development"
     #   MONGO_INITDB_ROOT_USERNAME: mongoroot
     #   MONGO_INITDB_ROOT_PASSWORD: mongosecret
     ports:
       - "27017:27017"
+  redis:
+    image: redis
+    restart: always
+    volumes:
+    - ../../tmp/db:/var/lib/redis/data
+  test:
+    build: .
+    command: "rspec --format documentation"
+    environment:
+      RAILS_ENV: "test"
+    volumes:
+      - ".:/dokerize-rails"
+    depends_on:
+      - mongo
+      - redis
+    links:
+      - mongo
+      - redis
   app:
     build: .
-    command: bash -c "rm -f tmp/pids/server.pid && rspec --format documentation && bundle exec rails s -p 3000 -b '0.0.0.0'"
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
     volumes:
       - ".:/dokerize-rails"
     ports:
       - "3000:3000"
     depends_on:
-      - db
+      - mongo
+      - redis
     links:
-      - db
+      - mongo
+      - redis
+  sidekiq:
+    build: .
+    command: "bundle exec sidekiq"
+    volumes:
+      - ".:/dokerize-rails"
+    environment:
+      # RAILS_ENV: "development"
+      REDIS_URL: "redis://redis:6379/12"
+    depends_on:
+      - mongo
+      - redis

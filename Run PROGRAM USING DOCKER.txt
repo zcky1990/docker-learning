@@ -1,4 +1,4 @@
-DOCKERFILE Explanation :
+DOCKERFILE EXPLANATION :
     =====================================================================================
         # syntax=docker/dockerfile:1
         FROM ruby:3.0.0
@@ -54,13 +54,11 @@ DOCKERFILE Explanation :
     CMD ["rails", "server", "-b", "0.0.0.0"]
         we follow rails docker guide https://docs.docker.com/samples/rails/
 
-
 BUILD DOCKER using DOCKER compose
     docker-compose build
 
 RUN APP
     docker-compose up
-
 
 USE rails function inside docker :
     docker-compose run <name of app inside docker-compose we use app in this example > <rails something>
