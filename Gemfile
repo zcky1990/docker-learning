@@ -23,6 +23,10 @@ gem "mongoid"
 
 gem "sidekiq"
 
+gem "bunny", ">= 2.13.0"
+
+gem "google-cloud-pubsub"
+
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.4', require: false
 

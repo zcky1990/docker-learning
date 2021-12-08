@@ -2,44 +2,34 @@ version: '3'
 services:
   mongo:
     image: mongo:4.4.3
-    restart: always
-    # environment:
-    #   RAILS_ENV: "development"
-    #   MONGO_INITDB_ROOT_USERNAME: mongoroot
-    #   MONGO_INITDB_ROOT_PASSWORD: mongosecret
     ports:
       - "27018:27017"
+    volumes:
+      - '../../tmp/data:/data/db'
   redis:
     image: redis
-    restart: always
     volumes:
-    - ../../tmp/db:/var/lib/redis/data
-  test:
-    build: .
-    command: "rspec --format documentation"
-    environment:
-      RAILS_ENV: "test"
-    volumes:
-      - ".:/dokerize-rails"
-    depends_on:
-      - mongo
-      - redis
-    links:
-      - mongo
-      - redis
+      - ../../tmp/db:/var/lib/redis/data
+    ports:
+      - "6380:6379"
   app:
     build: .
     command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
     volumes:
       - ".:/dokerize-rails"
+    # make able to access host ip
+    # https://docs.docker.com/compose/compose-file/compose-file-v3/#network_mode
+    network_mode: "host"
     ports:
       - "3000:3000"
+    # Express dependency between services. Service dependencies cause the following behaviors:
     depends_on:
       - mongo
       - redis
-    links:
-      - mongo
-      - redis
+    # Link to containers in another service. (deprecated)
+    # links:
+    #   - mongo
+    #   - redis
   sidekiq:
     build: .
     command: "bundle exec sidekiq"

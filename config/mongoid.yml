@@ -3,8 +3,11 @@ development:
     default:
       database: test_development
       hosts:
-        - mongo:27018
-        # - 192.168.1.43:27017
+        # use localhost if ur are using  network_mode: "host" in docker compose or --net="host" in docker run
+        # - mongo:27018
+        # - host.docker.internal:27017
+        # - 172.18.0.1:27017
+        - localhost:27018
       options:
   options:
 
@@ -13,6 +16,6 @@ test:
     default:
       database: test_test
       hosts:
-        - mongotest:27018
+        - localhost:27018
       options:
   options:
